@@ -216,18 +216,5 @@ module.exports = {
         .json({ error: "Error interno del servidor", message: error.message });
     }
   },
-  /*
-  sendNotification: async (req, res) => {
-    const { chat, text, sender } = req.body;
-    try {
-      if (sender === chat.buyer) {
-        sendMessageNotification(chat.seller._id, "Mensaje recivido ", text);
-      } else {
-        sendMessageNotification(chat.buyer._id, "Mensaje recivido ", text);
-      }
-      res.send.status(200);
-    } catch {
-      res.send.status(500);
-    }
-  }, */
+
 };
