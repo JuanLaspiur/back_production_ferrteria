@@ -68,7 +68,19 @@ io.on('connection', (socket) => {
   
       // Obtener la lista de mensajes actualizada del chat
       const updatedChat = await Chat.findById(chat).populate('messages');
- 
+
+ // Determine the recipient opposite to the sender to send message notification
+ if (sender === updatedChat.buyer) {
+  console.log('sender buyer. ' + sender)
+  console.log('seller  ' + updatedChat.seller)
+  sendMessageNotification(updatedChat.seller._id, 'Mensaje recivido ', text);
+} else  {
+  console.log('sender ' + sender)
+  console.log('buyer  ' + updatedChat.buyer)
+  sendMessageNotification(updatedChat.buyer._id, 'Mensaje recivido ', text);
+} 
+
+  
       // Emitir un evento para indicar que se ha recibido un nuevo mensaje
       socket.emit('message received', 
       updatedChat.messages
