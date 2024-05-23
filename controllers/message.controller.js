@@ -216,6 +216,7 @@ module.exports = {
         .json({ error: "Error interno del servidor", message: error.message });
     }
   },
+  /*
   sendNotification: async (req, res) => {
     const { chat, text, sender } = req.body;
     try {
@@ -228,5 +229,5 @@ module.exports = {
     } catch {
       res.send.status(500);
     }
-  },
+  }, */
 };

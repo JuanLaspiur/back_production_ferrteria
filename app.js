@@ -70,8 +70,8 @@ io.on('connection', (socket) => {
       const updatedChat = await Chat.findById(chat).populate('messages');
  
       // Emitir un evento para indicar que se ha recibido un nuevo mensaje
-      socket.emit('message received', {
-      list: updatedChat.messages, chat, text, sender}
+      socket.emit('message received', 
+      updatedChat.messages
       );
     } catch (error) {
       console.error('Error al crear y enviar el mensaje:', error);
