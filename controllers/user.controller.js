@@ -158,7 +158,7 @@ userPost: async (req = request, res = response) => {
     }
   },
 
-  updateUserLocation : async (req = request, res = response) => {
+  updateUserLocation: async (req = request, res = response) => {
     const { id } = req.params;
     const { coordinates } = req.body; 
   
@@ -175,6 +175,7 @@ userPost: async (req = request, res = response) => {
       return res.status(500).json({ msg: error.message });
     }
   }
+  
 
 
   

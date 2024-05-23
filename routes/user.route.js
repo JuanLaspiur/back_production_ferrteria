@@ -45,6 +45,7 @@ router.get(
   userGet
 );
 
+
 router.get("/userId/:id", getUserById);
 
 router.get("/allSellers", getAllSellers);
