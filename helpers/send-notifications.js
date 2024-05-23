@@ -35,15 +35,19 @@ async function sendDemandNotification(location) {
     const sellers = await User.find({
       role: 'SELLER_ROLE', // Filtra solo a los vendedores
       location: {
-        $near: {
+        $nearSphere: {
           $geometry: {
             type: 'Point',
-            coordinates: [parseFloat(location.coordinates[0]), parseFloat(location.coordinates[1])], // Revisa el orden de las coordenadas si es necesario
+            coordinates: [parseFloat(location.coordinates[1]), parseFloat(location.coordinates[0])], // Revisa el orden de las coordenadas si es necesario
           },
           $maxDistance: process.env.SEARCH_RADIUS || 15000, // 15 km en metros
         },
       },
     });
+
+  console.log('Cordenadas 0 ' + location.coordinates[0] + '  1 ' + location.coordinates[1])
+
+    console.log(sellers, '  vendedores ')
 
     // Envía notificaciones a cada vendedor encontrado
     sellers.forEach(async (seller) => {

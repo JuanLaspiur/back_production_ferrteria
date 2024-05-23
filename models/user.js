@@ -82,6 +82,7 @@ const userSchema = Schema({
     coordinates: { type: [Number], default: [0, 0] },
   },
 });
+userSchema.index({ location: '2dsphere' });
 
 userSchema.methods.toJSON = function () {
   const { __v, password, _id, ...user } = this.toObject();
