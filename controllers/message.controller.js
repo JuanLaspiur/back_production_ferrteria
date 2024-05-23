@@ -4,9 +4,8 @@ const { handleUpload } = require("../config/cloudinary");
 const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
-const { validationResult } = require('express-validator');
-const {sendMessageNotification} = require('../helpers/send-notifications')
-
+const { validationResult } = require("express-validator");
+const { sendMessageNotification } = require("../helpers/send-notifications");
 
 module.exports = {
   createMessage: async (req, res = response) => {
@@ -14,34 +13,34 @@ module.exports = {
 
     const chatFound = await Chat.findById(chat);
     if (!chatFound) {
-        return res.status(400).json({ msg: "No existe el chat" });
+      return res.status(400).json({ msg: "No existe el chat" });
     }
 
- // Determine the recipient opposite to the sender to send message notification
+    // Determine the recipient opposite to the sender to send message notification
     if (sender === chatFound.buyer) {
-      sendMessageNotification(chatFound.seller._id, 'Mensaje recivido ', text);
-    } else  {
-      sendMessageNotification(chatFound.buyer._id, 'Mensaje recivido ', text);
-    } 
+      sendMessageNotification(chatFound.seller._id, "Mensaje recivido ", text);
+    } else {
+      sendMessageNotification(chatFound.buyer._id, "Mensaje recivido ", text);
+    }
 
     let cldRes = null;
 
     if (req.file) {
-        const b64 = Buffer.from(req.file.buffer).toString("base64");
-        let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
-        cldRes = await handleUpload(dataURI);
+      const b64 = Buffer.from(req.file.buffer).toString("base64");
+      let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+      cldRes = await handleUpload(dataURI);
     }
 
     let docsURL = null;
     if (cldRes) {
-        docsURL = cldRes.secure_url;
+      docsURL = cldRes.secure_url;
     }
 
     const data = {
-        chat,
-        text,
-        sender,
-        docs,
+      chat,
+      text,
+      sender,
+      docs,
     };
 
     const message = new Message(data);
@@ -50,8 +49,7 @@ module.exports = {
     await chatFound.save();
 
     return res.status(201).json(message);
-}
-,
+  },
   getMessages: async (req, res = response) => {
     const { limit = 5, skip = 0 } = req.query;
     try {
@@ -162,57 +160,73 @@ module.exports = {
   createImageMessage: async (req, res) => {
     try {
       if (!req.body || !req.body.imageData) {
-        return res.status(400).json({ error: 'No image provided' });
-      }  
+        return res.status(400).json({ error: "No image provided" });
+      }
       // Get image data in base64 format
       const imageData = req.body.imageData;
-  
-      const imageBuffer = Buffer.from(imageData, 'base64');
-  
+
+      const imageBuffer = Buffer.from(imageData, "base64");
+
       // Generate a unique filename for the image
       const fileName = `image_${Date.now()}.webp`;
-  
+
       // Destination path to save the image
-      const folderPath = path.join(__dirname, '..', 'assets', 'chatImage');
+      const folderPath = path.join(__dirname, "..", "assets", "chatImage");
       const imagePath = path.join(folderPath, fileName);
-  
+
       // Convert the image to webp format
       const imageSharp = sharp(imageBuffer);
       await imageSharp.webp().toFile(imagePath);
-  
+
       const newImageUri = `/assets/chatImage/${fileName}`;
-  
+
       return res.status(201).json({ uri: newImageUri });
     } catch (error) {
-      console.error('Error saving image:', error);
-      return res.status(500).json({ error: 'Internal Server Error', message: error.message });
+      console.error("Error saving image:", error);
+      return res
+        .status(500)
+        .json({ error: "Internal Server Error", message: error.message });
     }
-  }
-  , 
+  },
   getImageMessage: async (req, res) => {
     try {
-        let queryInfo = req.params.imagePath;
-        
-        if (!queryInfo ) {
-            return res.status(400).json({ error: 'No se proporcionó ninguna ruta de imagen' });
-        }
-        // Replace "-" with "/" in the URI.
-        const imagePath = queryInfo.replace(/-/g, "/");
-        const absoluteImagePath = path.join(__dirname, '..', imagePath);
+      let queryInfo = req.params.imagePath;
 
-        if (!fs.existsSync(absoluteImagePath)) {
-            return res.status(404).json({ error: 'El archivo de imagen no se encontró' });
-        }
+      if (!queryInfo) {
+        return res
+          .status(400)
+          .json({ error: "No se proporcionó ninguna ruta de imagen" });
+      }
+      // Replace "-" with "/" in the URI.
+      const imagePath = queryInfo.replace(/-/g, "/");
+      const absoluteImagePath = path.join(__dirname, "..", imagePath);
 
-        res.setHeader('Content-Type', 'image/webp');
-        fs.createReadStream(absoluteImagePath).pipe(res);
+      if (!fs.existsSync(absoluteImagePath)) {
+        return res
+          .status(404)
+          .json({ error: "El archivo de imagen no se encontró" });
+      }
+
+      res.setHeader("Content-Type", "image/webp");
+      fs.createReadStream(absoluteImagePath).pipe(res);
     } catch (error) {
-        console.error('Error al obtener la imagen:', error);
-        return res.status(500).json({ error: 'Error interno del servidor', message: error.message });
+      console.error("Error al obtener la imagen:", error);
+      return res
+        .status(500)
+        .json({ error: "Error interno del servidor", message: error.message });
     }
-} 
-
-
-  
-
+  },
+  sendNotification: async (req, res) => {
+    const { chat, text, sender } = req.body;
+    try {
+      if (sender === chat.buyer) {
+        sendMessageNotification(chat.seller._id, "Mensaje recivido ", text);
+      } else {
+        sendMessageNotification(chat.buyer._id, "Mensaje recivido ", text);
+      }
+      res.send.status(200);
+    } catch {
+      res.send.status(500);
+    }
+  },
 };
