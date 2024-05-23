@@ -3,6 +3,7 @@ const { Chat, Message } = require('../models');
 
 module.exports = {
   createChat: async (req, res = response) => {
+    try{
     const { buyer, seller, offer } = req.body;
 
     const data = {
@@ -13,8 +14,10 @@ module.exports = {
 
     const chat = new Chat(data);
     await chat.save();
-
     return res.status(201).json(chat);
+     } catch (err){
+      console.error(err)
+     }
   },
   getChats: async (req, res = response) => {
     const { limit = 5, skip = 0 } = req.query;
