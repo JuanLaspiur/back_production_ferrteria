@@ -158,24 +158,26 @@ userPost: async (req = request, res = response) => {
     }
   },
 
-  updateUserLocation: async (req = request, res = response) => {
-    const { id } = req.params;
-    const { coordinates } = req.body; 
+updateUserLocation: async (req = request, res = response) => {
+  const { id } = req.params;
+  const { coordinates } = req.body;
+  const location = {
+    type: 'Point',
+    coordinates: coordinates.map(coord => parseFloat(coord))
+  };
   
-    try {
-      const user = await User.findByIdAndUpdate(id, { location: { coordinates } }, { new: true });
-  
-      if (!user) {
-        return res.status(404).json({ msg: "Usuario no encontrado" });
-      }
-  
-      return res.json({ msg: 'success', user });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ msg: error.message });
+  try {
+    const user = await User.findByIdAndUpdate(id, { location }, { new: true });
+    if (!user) {
+      return res.status(404).json({ msg: 'Usuario no encontrado' });
     }
+    return res.json({ msg: 'success', user });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: error.message });
   }
-  
+}
+
 
 
   
