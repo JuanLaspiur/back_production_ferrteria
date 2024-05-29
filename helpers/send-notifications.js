@@ -4,81 +4,80 @@ require('dotenv').config();
 async function sendPushNotification(expoPushToken, title, body) {
   const message = {
     to: expoPushToken,
-    sound: "default",
     title,
     body,
-    data: { someData: "goes here" },
+    data: { someData: 'goes here' },
   };
 
   try {
-    const response = await fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
+    // Small push notification service
+    const response = await fetch('https://micro-services-ferreteria-notifications.onrender.com/api/send-notification', {
+      method: 'POST',
       headers: {
-        Accept: "application/json",
-        "Accept-encoding": "gzip, deflate",
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(message),
+      body: JSON.stringify({
+        expoPushToken,
+        title,
+        body,
+      }),
     });
 
-    // Manejar la respuesta si es necesario
-    console.log("Response:", response);
+    if (response.ok) {
+      console.log('Notification sent successfully');
+    } else {
+      const errorData = await response.json();
+      console.error('Error sending push notification:', response.status, response.statusText, errorData);
+    }
   } catch (error) {
-    // Manejar el error si ocurre
-    console.error("Error sending push notification:", error);
+    console.error('Error sending push notification:', error);
   }
 }
 
 async function sendDemandNotification(location) {
   try {
-    // Obtén la lista de usuarios vendedores dentro de un radio de 15 km de la ubicación
     const sellers = await User.find({
-      role: 'SELLER_ROLE', // Filtra solo a los vendedores
+      role: 'SELLER_ROLE',
       location: {
         $nearSphere: {
           $geometry: {
             type: 'Point',
-            coordinates: [parseFloat(location.coordinates[1]), parseFloat(location.coordinates[0])], // Revisa el orden de las coordenadas si es necesario
+            coordinates: [parseFloat(location.coordinates[1]), parseFloat(location.coordinates[0])],
           },
-          $maxDistance: process.env.SEARCH_RADIUS || 15000, // 15 km en metros
+          $maxDistance: process.env.SEARCH_RADIUS || 15000,
         },
       },
     });
 
-  console.log('Cordenadas 0 ' + location.coordinates[0] + '  1 ' + location.coordinates[1])
+    console.log('Coordinates 0:', location.coordinates[0], '1:', location.coordinates[1]);
+    console.log(sellers, 'sellers found');
 
-    console.log(sellers, '  vendedores ')
-
-    // Envía notificaciones a cada vendedor encontrado
     sellers.forEach(async (seller) => {
-      await sendPushNotification(seller.expoPushToken, 'Demanda cerca tuyo', 'Un usuario cerca tuyo pide un presupuesto de productos');
+      await sendPushNotification(seller.expoPushToken, 'Demand nearby', 'A user near you is requesting a quote for products');
     });
 
-    console.log('Notificaciones enviadas con éxito a los vendedores cercanos.');
+    console.log('Notifications successfully sent to nearby sellers.');
   } catch (error) {
-    console.error('Error al enviar las notificaciones:', error);
+    console.error('Error sending notifications:', error);
   }
 }
-
 
 async function sendMessageNotification(recipientId, title, body) {
   try {
     const recipient = await User.findById(recipientId);
     if (!recipient || !recipient.expoPushToken) {
-      console.error('Usuario no encontrado o expoPushToken no disponible');
+      console.error('User not found or expoPushToken not available');
       return;
     }
 
-    // Envía la notificación push al expoPushToken del destinatario
     await sendPushNotification(recipient.expoPushToken, title, body);
   } catch (error) {
-    console.error('Error al enviar la notificación push:', error);
+    console.error('Error sending push notification:', error);
   }
 }
-
 
 module.exports = {
   sendPushNotification,
   sendDemandNotification,
-  sendMessageNotification
+  sendMessageNotification,
 };

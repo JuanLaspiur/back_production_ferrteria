@@ -158,8 +158,8 @@ module.exports = {
     }
   },
   updateOfferStatus: async (req, res = response) => {
-    const { id } = req.params;
-    const { status, buyerID } = req.body;
+    const { id } = req.params; // ofert id 
+    const { status, buyerID } = req.body; // accepted y buyer id
 
     console.log('¿Este es el Id de la OFERTA? ' + id);
   

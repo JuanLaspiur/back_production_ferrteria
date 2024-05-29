@@ -78,13 +78,15 @@ io.on('connection', (socket) => {
   console.log('sender ' + sender)
   console.log('buyer  ' + updatedChat.buyer)
   sendMessageNotification(updatedChat.buyer._id, 'Mensaje recivido ', text);
-} 
+}   
+
+socket.emit('message received', 
+      updatedChat.messages
+      );
 
   
       // Emitir un evento para indicar que se ha recibido un nuevo mensaje
-      socket.emit('message received', 
-      updatedChat.messages
-      );
+    
     } catch (error) {
       console.error('Error al crear y enviar el mensaje:', error);
     }
