@@ -1,3 +1,4 @@
+const axios = require('axios');
 const { User } = require('../models');
 require('dotenv').config();
 
@@ -11,23 +12,16 @@ async function sendPushNotification(expoPushToken, title, body) {
 
   try {
     // Small push notification service
-    const response = await fetch('https://micro-services-ferreteria-notifications.onrender.com/api/send-notification', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        expoPushToken,
-        title,
-        body,
-      }),
+    const response = await axios.post('https://micro-services-ferreteria-notifications.onrender.com/api/send-notification', {
+      expoPushToken,
+      title,
+      body,
     });
 
-    if (response.ok) {
+    if (response.status === 200) {
       console.log('Notification sent successfully');
     } else {
-      const errorData = await response.json();
-      console.error('Error sending push notification:', response.status, response.statusText, errorData);
+      console.error('Error sending push notification:', response.status, response.statusText);
     }
   } catch (error) {
     console.error('Error sending push notification:', error);
@@ -81,3 +75,4 @@ module.exports = {
   sendDemandNotification,
   sendMessageNotification,
 };
+
