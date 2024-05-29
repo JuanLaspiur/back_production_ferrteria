@@ -47,7 +47,8 @@ async function sendDemandNotification(location) {
     console.log(sellers, 'sellers found');
 
     sellers.forEach(async (seller) => {
-      await sendPushNotification(seller.expoPushToken, 'Demand nearby', 'A user near you is requesting a quote for products');
+      await sendPushNotification(seller.expoPushToken, 'Demanda cercana', 'Un usuario cerca de ti está solicitando un presupuesto para productos');
+
     });
 
     console.log('Notifications successfully sent to nearby sellers.');
